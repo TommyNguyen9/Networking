@@ -9,6 +9,27 @@
 #include <asio/ts/buffer.hpp>
 #include <asio/ts/internet.hpp>
 
+
+std::vector<char> vBuffer(20 * 1024);
+
+void GrabSomeData(asio::ip::tcp::socket& socket)
+{
+	socket.async_read_some(asio::buffer(vBuffer.data(), vBuffer.size()),
+		[&](std::error_code ec, std::size_t length)
+		{
+			if (!ec)
+			{
+				std::cout << "\n\nRead " << length << " bytes\n\n";
+
+				for (int i = 0; i < length; i++)
+					std::cout << vBuffer[i];
+
+				GrabSomeData(socket);
+			}
+		}
+	);
+}   
+
 int main() {
 
 	asio::error_code ec;
@@ -17,7 +38,7 @@ int main() {
 	asio::io_context context;
 
 	// Get address of somewhere we want to connect to: - endpoint is an address.
-	asio::ip::tcp::endpoint endpoint(asio::ip::make_address("127.0.0.1", ec), 80);
+	asio::ip::tcp::endpoint endpoint(asio::ip::make_address("51.38.81.49", ec), 80);
 
 	// Creating a socket:
 	asio::ip::tcp::socket socket(context);
