@@ -8,8 +8,9 @@
 #include <asio.hpp>
 #include <asio/ts/buffer.hpp>
 #include <asio/ts/internet.hpp>
+#include <thread>
 
-
+namespace asio_ns = asio;
 std::vector<char> vBuffer(20 * 1024);
 
 void GrabSomeData(asio::ip::tcp::socket& socket)
@@ -32,53 +33,94 @@ void GrabSomeData(asio::ip::tcp::socket& socket)
 
 int main() {
 
-	asio::error_code ec;
-
-	// Creating a context - platform specific interface.
-	asio::io_context context;
-
-	// Get address of somewhere we want to connect to: - endpoint is an address.
-	asio::ip::tcp::endpoint endpoint(asio::ip::make_address("51.38.81.49", ec), 80);
-
-	// Creating a socket:
-	asio::ip::tcp::socket socket(context);
-
-	// Tell socket to try & connect
-	socket.connect(endpoint, ec);
-
-	if (!ec)
+	try
 	{
-		std::cout << "Connected!" << std::endl;
-	}
-	else 
-	{
-		std::cout << "Failed to connect to address:\n" << ec.message() << std::endl;
-	}
 
-	if (socket.is_open())
-	{
-		std::string sRequest =
-			"GET /index.html HTTP/1.1\r\n"
-			"Host: example.com\r\n"
-			"Connection: close\r\n\r\n";
+		asio::error_code ec;
 
-		socket.write_some(asio::buffer(sRequest.data(), sRequest.size()), ec);
+		// Creating a context - platform specific interface.
+		asio::io_context context;
 
-		socket.wait(socket.wait_read);
+		// Keep context alive:
+		auto work_guard = asio::make_work_guard(context);
 
-		size_t bytes = socket.available();
-		std::cout << "Bytes Available: " << bytes << std::endl;
+		// Start the context
+		std::thread thrContext = std::thread([&]() {
+			try
+			{
+				context.run();
 
-		if (bytes > 0)
+			}
+			catch (std::exception& e)
+			{
+				std::cout << "Context exception: " << e.what() << "\n";
+			}
+
+			});
+
+		// Get address of somewhere we want to connect to: - endpoint is an address.
+		asio::ip::tcp::endpoint endpoint(asio::ip::make_address("51.38.81.49", ec), 80);
+
+		// Creating a socket:
+		asio::ip::tcp::socket socket(context);
+
+		// Tell socket to try & connect
+		socket.connect(endpoint, ec);
+
+		if (!ec)
 		{
-			std::vector<char> vBuffer(bytes);
-			socket.read_some(asio::buffer(vBuffer.data(), vBuffer.size()), ec);
+			std::cout << "Connected!" << std::endl;
+			//GrabSomeData(socket);
+		}
+		else
+		{
+			std::cout << "Failed to connect to address:\n" << ec.message() << std::endl;
+		}
 
-			for (auto c : vBuffer)
-				std::cout << c;
+		if (!ec)
+		{
+			GrabSomeData(socket);
+
+			std::string sRequest =
+				"GET /index.html HTTP/1.1\r\n"
+				"Host: example.com\r\n"
+				"Connection: close\r\n\r\n";
+
+			socket.write_some(asio::buffer(sRequest.data(), sRequest.size()), ec);
+
+			if (ec)
+			{
+				std::cout << "Write failed: " << ec.message() << "\n";
+			}
+
+			// Program does something else. Asio handles data transfer in background
+			using namespace std::chrono_literals;
+			std::this_thread::sleep_for(2000ms);
+		}
+		else
+		{
+			std::cout << "Failed to connect: " << ec.message() << "\n";
+		}
+
+		if (socket.is_open())
+		{
+			socket.close();
+
+		}
+
+		work_guard.reset();
+		context.stop();
+
+		if (thrContext.joinable())
+		{
+			thrContext.join();
 		}
 	}
 
-	return 0;
-	
+	catch (const std::exception& e)
+	{
+		std::cout << "Main exception:" << e.what() << "\n";
+	}
+		return 0;
+
 }
