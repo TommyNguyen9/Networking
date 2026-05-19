@@ -35,6 +35,48 @@ namespace olc
 				return os;
 			}
 
-		};
+			// Push POD like data into the message buffer:
+			template<typename DataType> 
+			friend message<T>& operator << (message<T>& msg, const DataType& data)
+			{
+				// Check type of data being pushed is copyable:
+				static_assert(std::is_standard_layout<DataType>::value, "Data is too complex to be pushed into vector!");
+
+				// Cache current size of vector:
+				size_t i = msg.body.size();
+
+				// Resize body vector:
+				msg.body.resize(msg.body.size() + sizeof(DataType));
+
+				// Copy data into newly allocated vector space
+				std::memcpy(msg.body.data() + i, &data, sizeof(DataType));
+
+				// Recalculate message size:
+				msg.header.size = msg.size();
+
+				// Return target message so it can be chained
+				return msg;
+			}
+
+			template<typename DataType>
+			friend message<T>& operator >> (message<T>& msg, DataType& data)
+			{
+
+				static_assert(std::is_standard_layout<DataType>::value, "Data is too complex to be pushed into vector!");
+
+				//Cache location to end of vector where pulled data starts:
+				size_t i = msg.body.size() - sizeof(DataType);
+
+				//Physically copy data from vector in user variable:
+				std::memcpy(&data, msg.body.data() + i, sizeof(DataType));
+
+				// Reduce size of vector:
+
+				msg.body.resize(i);
+
+				return msg;
+			}
+			
+		}; 
 	}
 }
