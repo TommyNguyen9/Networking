@@ -11,7 +11,7 @@
 #include <thread>
 
 namespace asio_ns = asio;
-std::vector<char> vBuffer(20 * 1024);
+std::vector<char> vBuffer(1 * 1024);
 
 void GrabSomeData(asio::ip::tcp::socket& socket)
 {
