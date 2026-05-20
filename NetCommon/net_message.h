@@ -58,6 +58,10 @@ namespace olc
 				return msg;
 			};
 
+			// Forward declare connection
+			template <typename T>
+			class connection;
+
 			template <typename T> 
 			struct owned_message
 			{

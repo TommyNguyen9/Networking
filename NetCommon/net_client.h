@@ -29,6 +29,19 @@ namespace olc
 			{
 				try
 				{
+					// Create connection
+					m_connection = std::make_unique<connection<T>>();
+
+					// resolve ip address into tangiable physical address
+					asio::ip::tcp::resolver resolver(m_context);
+					m_endpoints = resolver.resolve(host, std::to_string(port));
+
+					// Tell connection object to connect to server
+					m_connection->ConnectToServer(m_endpoints);
+
+					// Start Context Thread:
+					thrContext = std::thread([this]() {m_context.run(); });
+
 
 				}
 				catch (std::exception& e)
@@ -43,7 +56,17 @@ namespace olc
 			// Disconnect from server:
 			void Disconnect()
 			{
+				if (IsConnected())
+				{
+					m_connection->Disconnect();
+				}
 
+				m_context.stop();
+				if (thrContext.joinable())
+					thrContext.join();
+
+				// Destroy connection object:
+				m_connection.release();
 			}
 
 			// Check if client is still connected to the server:
