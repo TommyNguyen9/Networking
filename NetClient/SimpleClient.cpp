@@ -28,7 +28,7 @@ int main()
 	msg << a << b << c << d;
 
 	a = 99;
-	b = false;
+	b = false; 
 	c = 99.00f;
 
 	msg >> d >> c >> b >> a;
