@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClInclude Include="net_common.h" />
     <ClInclude Include="net_message.h" />
+    <ClInclude Include="net_tsqueue.h" />
     <ClInclude Include="olc_net.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
@@ -129,7 +130,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-		<AdditionalIncludeDirectories>C:\Libraries\asio-1.36.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Libraries\asio-1.36.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
