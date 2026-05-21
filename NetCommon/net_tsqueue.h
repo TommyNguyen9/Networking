@@ -5,7 +5,7 @@ namespace olc
 {
 	namespace net
 	{
-		template<typename>
+		template<typename T>
 		class tsqueue
 		{
 		public:
