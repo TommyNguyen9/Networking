@@ -178,6 +178,12 @@ namespace olc
 
 			}
 
+			// Called when message arrives:
+			virtual void onMessage(std::shared_ptr<connection<T>> client, message<T>& msg)
+			{
+
+			}
+
 		protected:
 			// Thread safe queue for incoming message packets
 			tsqueue<owned_message<T>> m_qMessagesIn;

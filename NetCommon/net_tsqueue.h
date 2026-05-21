@@ -57,6 +57,14 @@ namespace olc
 				deqQueue.clear();
 			}
 
+			T pop_front()
+			{
+				std::scoped_lock lock(muxQueue);
+				auto t = std::move(deqQueue.front());
+				deqQueue.pop_front();
+				return t;
+			}
+
 			// Remove & return item from front of queue
 
 			T pop_back()
