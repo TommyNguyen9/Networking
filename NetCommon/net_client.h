@@ -12,6 +12,7 @@ namespace olc
 		template <typename T>
 		class client_interface
 		{
+		public:
 			client_interface() : m_socket(m_context)
 			{
 				// Initisalise socket with io context
@@ -39,7 +40,7 @@ namespace olc
 					//m_endpoints = resolver.resolve(host, std::to_string(port));
 
 					// Tell connection object to connect to server
-					m_connection->ConnectToServer(endpoints);
+					//m_connection->ConnectToServer(endpoints);
 
 					// Start Context Thread:
 					thrContext = std::thread([this]() {m_context.run(); });
@@ -80,12 +81,7 @@ namespace olc
 					return false;
 			}
 
-			// Retrieve queue messages from server:
-			tsqueue<owned_message<T>>& Incoming()
-			{
-				return m_qMessagesIn;
-			}
-
+			
 		public:
 			// Send message to server:
 			void Send(const message<T>& msg)
