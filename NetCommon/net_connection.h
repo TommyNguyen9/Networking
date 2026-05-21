@@ -12,6 +12,16 @@ namespace olc
 		template<typename T>
 		class connection : public std::enable_shared_from_this<connection<T>>
 		{
+
+		public:
+			// Connect is owned by a server/client
+			enum class owner
+			{
+				server, 
+				client
+			};
+
+
 		public:
 			connection()
 			{
@@ -25,6 +35,12 @@ namespace olc
 			bool ConnectToServer();
 			bool Disconnect();
 			bool IsConnected() const;
+
+		//public:
+		//	void ConnectToClient(uint32_t uid = 0)
+		//	{
+		//		if (m_n)
+		//	}
 
 		public:
 			bool Send(const message<T>& msg);

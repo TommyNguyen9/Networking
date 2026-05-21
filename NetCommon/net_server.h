@@ -158,7 +158,7 @@ namespace olc
 					auto msg = m_qMessagesIn.pop_front();
 
 					// Pass to message handler
-					OnMessage(msg.remote, msg.msg);
+					onMessage(msg.remote, msg.msg);
 
 					nMessageCount++;
 				}

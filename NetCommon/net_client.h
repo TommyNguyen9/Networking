@@ -86,6 +86,19 @@ namespace olc
 				return m_qMessagesIn;
 			}
 
+		public:
+			// Send message to server:
+			void Send(const message<T>& msg)
+			{
+				if (IsConnected())
+					m_connection->Send(msg);
+			}
+
+			// Retrieve queue of messages from server
+			tsqueue<owned_message<T>>& Incoming()
+			{
+				return m_qMessagesIn;
+			}
 
 
 		protected:
