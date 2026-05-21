@@ -3,7 +3,7 @@
 #include "net_common.h"
 #include "net_tsqueue.h"
 #include "net_message.h"
-#include "net_client.h"
+//#include "net_client.h"
 
 namespace olc
 {
@@ -40,7 +40,7 @@ namespace olc
 			tsqueue<message<T>> m_qMessagesOut;
 
 			// A reference as the "owner" of the connection has to provide a queue:
-			tsqueue<owned_message>& m_qMessagesIn;
+			tsqueue<owned_message<T>>& m_qMessagesIn;
 
 
 		};

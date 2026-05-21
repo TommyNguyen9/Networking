@@ -25,7 +25,7 @@ namespace olc
 			// return size of entire message packet in bytes:
 			size_t size() const
 			{
-				return sizeof(message_header<T>) + body.size();
+				return body.size();
 			}
 
 			// Override for std::cout compatibility:
@@ -56,7 +56,29 @@ namespace olc
 
 				// Return target message so it can be chained
 				return msg;
-			};
+			}
+
+			template<typename DataType>
+			friend message<T>& operator >> (message<T>& msg, DataType& data)
+			{
+
+				static_assert(std::is_standard_layout<DataType>::value, "Data is too complex to be pushed into vector!");
+
+				//Cache location to end of vector where pulled data starts:
+				size_t i = msg.body.size() - sizeof(DataType);
+
+				//Physically copy data from vector in user variable:
+				std::memcpy(&data, msg.body.data() + i, sizeof(DataType));
+
+				// Reduce size of vector:
+
+				msg.body.resize(i);
+
+				return msg;
+			}
+
+		};
+
 
 			// Forward declare connection
 			template <typename T>
@@ -77,25 +99,6 @@ namespace olc
 				}
 			};
 
-			template<typename DataType>
-			friend message<T>& operator >> (message<T>& msg, DataType& data)
-			{
-
-				static_assert(std::is_standard_layout<DataType>::value, "Data is too complex to be pushed into vector!");
-
-				//Cache location to end of vector where pulled data starts:
-				size_t i = msg.body.size() - sizeof(DataType);
-
-				//Physically copy data from vector in user variable:
-				std::memcpy(&data, msg.body.data() + i, sizeof(DataType));
-
-				// Reduce size of vector:
-
-				msg.body.resize(i);
-
-				return msg;
-			}
-			
-		}; 
+		
 	}
 }

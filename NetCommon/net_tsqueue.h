@@ -1,5 +1,7 @@
 #pragma once
 #include "net_common.h"
+#include <mutex>
+#include <deque>
 
 namespace olc
 {
@@ -10,7 +12,7 @@ namespace olc
 		{
 		public:
 			tsqueue() = default;
-			tsqueue(const tsqeueue<T>&) = delete;
+			tsqueue(const tsqueue<T>&) = delete;
 			virtual ~tsqueue() { clear(); }
 
 		public:
@@ -38,7 +40,7 @@ namespace olc
 			bool empty()
 			{
 				std::scoped_lock lock(muxQueue);
-				return deqQueue.size();
+				return deqQueue.empty();
 			}
 
 			// Return no. items in queue
