@@ -123,11 +123,50 @@ namespace olc
 			// Send message to all clients
 			void MessageAllClients(const message<T>& msg, std::shared_ptr<connection<T>> pIgnoreClient = nullptr)
 			{
+				bool bInvalidClientExists = false;
+
+				for (auto& client : m_deqConnections)
+				{
+					// Check client is connected
+					if (client && client->IsConnected())
+					{
+						if (client != pIgnoreClient)
+							client->Send(msg);
+					}
+					else
+					{
+						// Client couldnt be contacted
+						OnClientDisconnect(client);
+						client.reset();
+						bInvalidClientExists = true;
+					}
+				}
+
+				if (bInvalidClientExists)
+					m_deqConnections.erase(
+						std::remove(m_deqConnections.begin(), m_deqConnections.end(), nullptr), m_deqConnections.end());
+					)
 
 			}
 
+			void Update(size_t nMaxMessages = -1)
+			{
+				size_t nMessageCount = 0;
+				while (nMessageCount < nMaxMessages && !m_qMessageIn.empty())
+				{
+					// Grab front message
+					auto msg = m_qMessagesIn.pop_front();
+
+					// Pass to message handler
+					OnMessage(msg.remote, msg.msg);
+
+					nMessageCount++;
+				}
+			}
+
 		protected:
-			// Called when client connects, veto the connection by returning false
+			// Called when client connects, ve3
+			// to the connection by returning false
 			virtual bool OnClientConnect(std::shared_ptr<connection<T>> client)
 			{
 				return false;
