@@ -6,4 +6,5 @@
   <Project Path="Example1/Example1.vcxproj" Id="92698838-4d43-4160-9017-8c5f74a79a8a" />
   <Project Path="NetClient/NetClient.vcxproj" Id="895c801e-d752-48c2-b87b-91be218cb2e1" />
   <Project Path="NetCommon/NetCommon.vcxproj" Id="6d56f48d-2290-4915-9cff-ac9021f6474b" />
+  <Project Path="NetServer/NetServer.vcxproj" Id="44623167-342b-4a0b-af6c-8e843a81f530" />
 </Solution>

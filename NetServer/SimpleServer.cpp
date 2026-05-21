@@ -1,6 +1,7 @@
 
 #include <iostream>
-//#include "olc_net.h"
+#include <olc_net.h>
+
 
 enum class CustomMsgTypes : uint32_t
 {
@@ -24,11 +25,31 @@ protected:
     {
         return true;
     }
+
+    // Called when client has disconnected:
+
+    virtual void OnClientDisconnect(std::shared_ptr<olc::net::connection<CustomMsgTypes>> client)
+    {
+
+    }
+
+    // Called when a message arrives:
+    virtual void onMessage(std::shared_ptr<olc::net::connection<CustomMsgTypes>> client, olc::net::message<CustomMsgTypes>& msg)
+    {
+
+    }
 };
 
 
 int main()
 {
-    std::cout << "Hello World!\n";
+    CustomServer server(60000);
+    server.Start();
+
+    while (1)
+    {
+        server.Update();
+    }
+    return 0;
 }
 
