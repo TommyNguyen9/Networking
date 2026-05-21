@@ -68,6 +68,7 @@ namespace olc
 						{
 							std::cout << "[SERVER] New Connection: " << socket.remote_endpoint() << "\n";
 
+							// New object newconn:
 							std::shared_ptr<connection<T>> newconn =
 								std::make_shared<connection<T>>(connection<T>::owner::server,
 									m_asioContext, std::move(socket), m_qMessagesIn);
@@ -76,6 +77,12 @@ namespace olc
 							if (OnClientConnect(newconn))
 							{
 
+								// Connection allowed. Add to container of new connections
+								m_deqConnections.push_back(std::move(newconn));
+
+								m_deqConnections.back()->ConnectToClient(nIDCounter++);
+
+								std::cout << "[" << m_deqConnections.back()->GetID() << "] Connection Approved\n";
 
 							}
 							else
@@ -90,6 +97,7 @@ namespace olc
 							std::cout << "[SERVER] New Connection Error: " << ec.message() << "\n";
 						}
 
+						// Prime asio context with more work:
 						WaitForClientConnection();
 					});
 				
@@ -99,7 +107,17 @@ namespace olc
 			// Send message to specific client
 			void MessageClient(std::shared_ptr<connection<T>> client, const message<T>& msg)
 			{
-
+				if (client && client->IsConnected())
+				{
+					client->Send(msg);
+				}
+				else
+				{
+					OnClientDisconnect(client);
+					client.reset();
+					m_deqConnections.erase(
+						std::remove(m_deqConnections.begin(), m_deqConnections.end(), client), m_deqConnections.end());
+				}
 			}
 
 			// Send message to all clients
@@ -124,6 +142,9 @@ namespace olc
 		protected:
 			// Thread safe queue for incoming message packets
 			tsqueue<owned_message<T>> m_qMessagesIn;
+
+			// Container of active validated connections
+			std::deque<std::shared_ptr<connection<T>>> m_deqConnections;
 
 			// Order of declaration is important
 			asio::io_context m_asioContext;
