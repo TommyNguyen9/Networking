@@ -9,7 +9,7 @@ namespace olc
 		class tsqueue
 		{
 		public:
-			tsqeueue() = default;
+			tsqueue() = default;
 			tsqueue(const tsqeueue<T>&) = delete;
 			virtual ~tsqueue() { clear(); }
 
