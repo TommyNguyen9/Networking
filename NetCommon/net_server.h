@@ -48,10 +48,10 @@ namespace olc
 			void Stop()
 			{
 				// Request context to close
-				m_asioContext.stop()
+				m_asioContext.stop();
 
 				// Tidy up context thread
-				if (m_threadContext.joinable() m_threadContext.join();)
+				if (m_threadContext.joinable()) m_threadContext.join();
 
 				// Inform a person
 				std::cout << "[SERVER] Stopped!\n";
@@ -59,7 +59,7 @@ namespace olc
 			}
 
 			// ASYNC - Instruct asio to wait for connection
-			void WaitForClientConnect()
+			void WaitForClientConnection()
 			{
 				m_asioAcceptor.async_accept(
 					[this](std::error_code ec, asio::ip::tcp::socket socket)
@@ -68,27 +68,27 @@ namespace olc
 						{
 							std::cout << "[SERVER] New Connection: " << socket.remote_endpoint() << "\n";
 
-							//// New object newconn:
-							//std::shared_ptr<connection<T>> newconn =
-							//	std::make_shared<connection<T>>(connection<T>::owner::server,
-							//		m_asioContext, std::move(socket), m_qMessagesIn);
+							// New object newconn:
+							std::shared_ptr<connection<T>> newconn =
+								std::make_shared<connection<T>>(connection<T>::owner::server,
+									m_asioContext, std::move(socket), m_qMessagesIn);
 
-							//// Give user server a chance to deny connection
-							//if (OnClientConnect(newconn))
-							//{
+							// Give user server a chance to deny connection
+							if (OnClientConnect(newconn))
+							{
 
-							//	// Connection allowed. Add to container of new connections
-							//	m_deqConnections.push_back(std::move(newconn));
+								// Connection allowed. Add to container of new connections
+								m_deqConnections.push_back(std::move(newconn));
 
-							//	m_deqConnections.back()->ConnectToClient(nIDCounter++);
+								m_deqConnections.back()->ConnectToClient(nIDCounter++);
 
-							//	std::cout << "[" << m_deqConnections.back()->GetID() << "] Connection Approved\n";
+								std::cout << "[" << m_deqConnections.back()->GetID() << "] Connection Approved\n";
 
-							//}
-							//else
-							//{
-							//	std::cout << "[-----] Connection Denied\n";
-							//}
+							}
+							else
+							{
+								std::cout << "[-----] Connection Denied\n";
+							}
 
 						}
 						else
@@ -145,14 +145,14 @@ namespace olc
 				if (bInvalidClientExists)
 					m_deqConnections.erase(
 						std::remove(m_deqConnections.begin(), m_deqConnections.end(), nullptr), m_deqConnections.end());
-					)
+					
 
 			}
 
 			void Update(size_t nMaxMessages = -1)
 			{
 				size_t nMessageCount = 0;
-				while (nMessageCount < nMaxMessages && !m_qMessageIn.empty())
+				while (nMessageCount < nMaxMessages && !m_qMessagesIn.empty())
 				{
 					// Grab front message
 					auto msg = m_qMessagesIn.pop_front();
