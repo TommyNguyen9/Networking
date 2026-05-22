@@ -77,31 +77,86 @@ namespace olc
 						if (!ec)
 						{
 
+							if (m_msgTemporaryIn.header.size > 0)
+							{
+								m_msgTemporaryIn.body.resize(m_msgTemporaryIn.header.size);
+								ReadBody();
+							}
+							else
+							{
+								AddToIncomingMessageQueue();
+							}
+
 						}
 						else
 						{
-
 							std::cout << "[" << id << "] Read Header Fail.\n";
-							m_socket.close();
+							m_socket.close(); // Force close the socket.
 						}
-					}
+					});
 			}
 
 			// Read message body (ASYNC)
 
 			void ReadBody()
 			{
-				
+				asio::async_read(m_socket, asio::buffer(m_msgTemporaryIn.body.data(), m_msgTemporaryIn.body.size()),
+					[this](std::error_code ec, std::size_t length)
+					{
+						if (!ec)
+						{
+							AddToIncomingMessageQueue();
+						}
+						else
+						{
+							std::cout << "[" << id << "] Read Body Fail.\n";
+							m_socket.close();
+						}
+					});
 			}
 
 			void WriteHeader()
 			{
+				asio::async_write(m_socket, asio::buffer(&m_qMessagesOut.front().header, sizeof(message_header<T>)),
+					[this](std::error_code ec, std::size_t length)
+					{
+						if (!ec)
+						{
+							if (m_qMessagesOut.front().body.size() > 0)
+							{
+								WriteBody();
+							}
+							else
+							{
+								m_qMessagesOut.pop_front();
 
+								if (!m_qMessagesOut.empty())
+								{
+									WriteHeader();
+								}
+							}
+						}
+						else
+						{
+							std::cout << "[" << id << "] Write Header Fail.\n";
+							m_socket.close();
+						}
+					});
 			}
 
 			void WriteBody()
 			{
 
+			}
+
+			void AddToIncomingMessageQueue()
+			{
+				if (m_nOwnerType == owner::server)
+					m_qMessagesIn.push_back({ this->shared_from_this(), m_msgTemporaryIn });
+				else
+					m_qMessagesIn.push_back({ nullptr, m_msgTemporaryIn });
+
+				ReadHeader();
 			}
 
 		protected:
