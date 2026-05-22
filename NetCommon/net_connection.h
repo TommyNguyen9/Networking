@@ -56,7 +56,7 @@ namespace olc
 					if (m_socket.is_open())
 					{
 						id = uid;
-						//ReadHeader();
+						ReadHeader();
 					}
 				}
 			}
@@ -65,7 +65,16 @@ namespace olc
 			//bool Disconnect()
 
 		public:
-			void Send(const message<T>& msg);
+			void Send(const message<T>& msg)
+			{
+				asio::post(m_asioContext,
+					[this, msg]()
+					{
+
+						m_qMessagesOut.push_back(msg);
+						WriteHeader();
+					});
+			}
 
 		private:
 			// ASYNC - Prime context ready to read message header
@@ -146,7 +155,24 @@ namespace olc
 
 			void WriteBody()
 			{
+				asio::async_write(m_socket, asio::buffer(m_qMessagesOut.front().body.data(), m_qMessagesOut.front().body.size()),
+					[this](std::error_code ec, std::size_t length)
+					{
+						if (!ec)
+						{
+							m_qMessagesOut.pop_front();
 
+							if (!m_qMessagesOut.empty())
+							{
+								WriteHeader();
+							}
+						}
+						else
+						{
+							std::cout << "[" << id << "] Write Body Fail.\n";
+							m_socket.close();
+						}
+					});
 			}
 
 			void AddToIncomingMessageQueue()
