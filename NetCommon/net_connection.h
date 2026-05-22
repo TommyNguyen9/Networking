@@ -46,7 +46,16 @@ namespace olc
 				// Only clients can connect to servers
 				if (m_nOwnerType == owner::client)
 				{
+					// Request asio attempts to connect to endpoint
+					asio::async_connect(m_socket, endpoints,
+						[this](std::error_code ec, asio::ip::tcp::endpoint point)
+						{
+							if (!ec)
+								ReadHeader();
+							{
 
+							}
+						});
 				}
 			}
 
