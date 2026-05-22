@@ -42,7 +42,13 @@ namespace olc
 
 		public:
 			bool ConnectToServer();
-			bool Disconnect();
+
+
+			void Disconnect() {
+				if (IsConnected())
+					asio::post(m_asioContext, [this]() {m_socket.close(); });
+			}
+
 			bool IsConnected() const
 			{
 				return m_socket.is_open();
@@ -70,9 +76,13 @@ namespace olc
 				asio::post(m_asioContext,
 					[this, msg]()
 					{
-
+						bool bWritingMessage = !m_qMessagesOut.empty();
 						m_qMessagesOut.push_back(msg);
-						WriteHeader();
+						if (!bWritingMessage)
+						{
+							WriteHeader();
+						}
+						
 					});
 			}
 
