@@ -41,7 +41,14 @@ namespace olc
 			}
 
 		public:
-			bool ConnectToServer();
+			void ConnectToServer(const asio::ip::tcp::resolver::results_type& endpoints)
+			{
+				// Only clients can connect to servers
+				if (m_nOwnerType == owner::client)
+				{
+
+				}
+			}
 
 
 			void Disconnect() {
