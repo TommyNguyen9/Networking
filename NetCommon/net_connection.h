@@ -61,8 +61,48 @@ namespace olc
 				}
 			}
 
+			//void ConnectToServer();
+			//bool Disconnect()
+
 		public:
-			bool Send(const message<T>& msg);
+			void Send(const message<T>& msg);
+
+		private:
+			// ASYNC - Prime context ready to read message header
+			void ReadHeader()
+			{
+				asio::async_read(m_socket, asio::buffer(&m_msgTemporaryIn.header, sizeof(message_header<T>)),
+					[this](std::error_code ec, std::size_t length)
+					{
+						if (!ec)
+						{
+
+						}
+						else
+						{
+
+							std::cout << "[" << id << "] Read Header Fail.\n";
+							m_socket.close();
+						}
+					}
+			}
+
+			// Read message body (ASYNC)
+
+			void ReadBody()
+			{
+				
+			}
+
+			void WriteHeader()
+			{
+
+			}
+
+			void WriteBody()
+			{
+
+			}
 
 		protected:
 			// Unique socket to a remote for each connection
@@ -76,6 +116,7 @@ namespace olc
 
 			// A reference as the "owner" of the connection has to provide a queue:
 			tsqueue<owned_message<T>>& m_qMessagesIn;
+			message<T> m_msgTemporaryIn;
 
 			// Owner decides how some connections behave
 
