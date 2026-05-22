@@ -30,9 +30,13 @@ namespace olc
 			{
 				try
 				{
+					std::cout << "[CLIENT] Resolving " << host << ":" << port << "\n";
+
 					// resolve ip address into tangiable physical address
 					asio::ip::tcp::resolver resolver(m_context);
 					asio::ip::tcp::resolver::results_type endpoints = resolver.resolve(host, std::to_string(port));
+
+					std::cout << "[CLIENT Creating connection object\n";
 
 					// Create connection
 					m_connection = std::make_unique<connection<T>>(
@@ -40,10 +44,12 @@ namespace olc
 						m_context,
 						asio::ip::tcp::socket(m_context), m_qMessagesIn);
 
+					std::cout << "[CLIENT] Calling ConnectToServer\n";
+
 					// Tell connection object to connect to server
 					m_connection->ConnectToServer(endpoints);
-					
 
+					std::cout << "[CLIENT] Starting context thread\n";
 				
 					//m_endpoints = resolver.resolve(host, std::to_string(port));
 
@@ -51,6 +57,7 @@ namespace olc
 					// Start Context Thread:
 					thrContext = std::thread([this]() {m_context.run(); });
 
+					std::cout << "[CLIENT] Connect function finished\n";
 
 				}
 				catch (std::exception& e)

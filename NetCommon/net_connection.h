@@ -83,9 +83,6 @@ namespace olc
 				}
 			}
 
-			//void ConnectToServer();
-			//bool Disconnect()
-
 		public:
 			void Send(const message<T>& msg)
 			{
