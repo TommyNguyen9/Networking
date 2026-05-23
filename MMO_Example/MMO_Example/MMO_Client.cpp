@@ -1,5 +1,6 @@
 #include "../MMO_Server/MMO_Common.h"
 
+//test
 
 class MMOGame : public olc::PixelGameEngine, olc::net::client_interface<GameMsg>
 {
