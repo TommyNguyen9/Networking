@@ -78,6 +78,8 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
+      <AdditionalUsingDirectories>C:\Users\Smoke Nandos\Desktop\Computer Science Uni\Networking\Networking\MMO_Example\Dependencies;C:\Libraries\asio-1.36.0\include;%(AdditionalIncludeDirectories)</AdditionalUsingDirectories>
+      <AdditionalOptions>/I"C:\Libraries\asio-1.36.0\include" %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -96,6 +98,8 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
+      <AdditionalUsingDirectories>C:\Users\Smoke Nandos\Desktop\Computer Science Uni\Networking\Networking\MMO_Example\Dependencies;%(AdditionalIncludeDirectories)</AdditionalUsingDirectories>
+      <AdditionalOptions>/I"C:\Libraries\asio-1.36.0\include" %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -107,11 +111,14 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
+      <AdditionalIncludeDirectories>C:\Users\Smoke Nandos\Desktop\Computer Science Uni\Networking\Networking\MMO_Example\Dependencies;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
+      <AdditionalUsingDirectories>C:\Users\Smoke Nandos\Desktop\Computer Science Uni\Networking\Networking\MMO_Example\Dependencies;%(AdditionalIncludeDirectories)</AdditionalUsingDirectories>
+      <AdditionalOptions>/I"C:\Libraries\asio-1.36.0\include" %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -130,6 +137,8 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
+      <AdditionalUsingDirectories>C:\Users\Smoke Nandos\Desktop\Computer Science Uni\Networking\Networking\MMO_Example\Dependencies;%(AdditionalIncludeDirectories)</AdditionalUsingDirectories>
+      <AdditionalOptions>/I"C:\Libraries\asio-1.36.0\include" %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
