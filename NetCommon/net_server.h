@@ -80,7 +80,7 @@ namespace olc
 								// Connection allowed. Add to container of new connections
 								m_deqConnections.push_back(std::move(newconn));
 
-								m_deqConnections.back()->ConnectToClient(nIDCounter++);
+								m_deqConnections.back()->ConnectToClient(this, nIDCounter++);
 
 								std::cout << "[" << m_deqConnections.back()->GetID() << "] Connection Approved\n";
 
@@ -183,6 +183,13 @@ namespace olc
 
 			// Called when message arrives:
 			virtual void onMessage(std::shared_ptr<connection<T>> client, message<T>& msg)
+			{
+
+			}
+		
+		public:
+			// Called when client is validated
+			virtual void OnClientValidated(std::shared_ptr<connection<T>> client)
 			{
 
 			}

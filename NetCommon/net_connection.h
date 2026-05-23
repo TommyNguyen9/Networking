@@ -9,6 +9,10 @@ namespace olc
 {
 	namespace net
 	{
+		// Forward declare
+		template<typename T>
+		class server_interface;
+
 		template<typename T>
 		class connection : public std::enable_shared_from_this<connection<T>>
 		{
@@ -59,7 +63,7 @@ namespace olc
 			}
 
 		public:
-			void ConnectToClient(uint32_t uid = 0)
+			void ConnectToClient(olc::net::server_interface<T>* server, uint32_t uid = 0)
 			{
 				if (m_nOwnerType == owner::server)
 				{
@@ -287,8 +291,8 @@ namespace olc
 								else
 								{
 									// Incorrect data given. Disconnect
-									std::cout << "Client Disconnected (Fail Validation)" << std.endl;
-										m_socket.close();
+									std::cout << "Client Disconnected (Fail Validation)" << std::endl;
+									m_socket.close();
 								}
 							}
 							else
@@ -306,8 +310,8 @@ namespace olc
 							std::cout << "Client Disconnected (ReadValidation)" << std::endl;
 							m_socket.close();
 						}
-					}
-				)
+					});
+			
 			}
 
 
@@ -333,7 +337,7 @@ namespace olc
 
 			// Handshake validation
 			uint64_t m_nHandshakeOut = 0;
-			uint64_t m_HandshakeIn = 0;
+			uint64_t m_nHandshakeIn = 0;
 			uint64_t m_nHandshakeCheck = 0;
 
 
