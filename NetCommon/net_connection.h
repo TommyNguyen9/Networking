@@ -208,6 +208,14 @@ namespace olc
 				ReadHeader();
 			}
 
+			// "Encrypt data"
+			uint64_t scramble(uint64_t nInput)
+			{
+				uint64_t out = nInput ^ 0xDEADBEEFC0DECAFE;
+				out = (out & 0xF0F0F0F0F0F0F0) >> 4 | (out & 0x0F0F0F0F0F0F0F) << 4;
+				return out ^ 0xC0DEFACE12345678;
+			}
+
 		protected:
 			// Unique socket to a remote for each connection
 			asio::ip::tcp::socket m_socket;
