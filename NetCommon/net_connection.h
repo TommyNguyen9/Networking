@@ -266,6 +266,50 @@ namespace olc
 
 			}
 
+			void ReadValidation(olc::net::server_interface<T>* server = nullptr)
+			{
+				asio::async_read(m_socket, asio::buffer(&m_nHandshakeIn, sizeof(uint64_t)),
+					[this, server](std::error_code ec, std::size_t length)
+					{
+						if (!ec)
+						{
+							if (m_nOwnerType == owner::server)
+							{
+								if (m_nHandshakeIn == m_nHandshakeCheck)
+								{
+									// Client provided valid solutuion so can connect properly
+									std::cout << "Client Validated" << std::endl;
+									server->OnClientValidated(this->shared_from_this());
+
+									// Sit to receive data
+									ReadHeader();
+								}
+								else
+								{
+									// Incorrect data given. Disconnect
+									std::cout << "Client Disconnected (Fail Validation)" << std.endl;
+										m_socket.close();
+								}
+							}
+							else
+							{
+								// Connect is a client. Solve puzzle
+								m_nHandshakeOut = scramble(m_nHandshakeIn);
+
+								// Write result
+								WriteValidation();
+							}
+						}
+						else
+						{
+							// Larger failure occured:
+							std::cout << "Client Disconnected (ReadValidation)" << std::endl;
+							m_socket.close();
+						}
+					}
+				)
+			}
+
 
 		protected:
 			// Unique socket to a remote for each connection
