@@ -246,6 +246,26 @@ namespace olc
 				return out ^ 0xC0DEFACE12345678;
 			}
 
+			// ASYNC - Both client & server uses this to write validation packet
+			void WriteValidation()
+			{
+				asio::async_write(m_socket, asio::buffer(&m_nHandshakeOut, sizeof(uint64_t)),
+					[this](std::error_code ec, std::size_t length)
+					{
+						if (!ec)
+						{
+							// Validation data sent. Clients need to sit & wait for a response
+							if (m_nOwnerType == owner::client)
+								ReadHeader();
+						}
+						else
+						{
+							m_socket.close();
+						}
+					});
+
+			}
+
 
 		protected:
 			// Unique socket to a remote for each connection
