@@ -29,6 +29,24 @@ namespace olc
 				: m_asioContext(asioContext), m_socket(std::move(socket)), m_qMessagesIn(qIn)
 			{
 				m_nOwnerType = parent;
+
+
+				// Validation check data
+				if (m_nOwnerType == owner::server)
+				{
+					// Connection is Server -> Client. Construct random data for client
+					m_nHandshakeOut = uint64_t(std::chrono::system_clock::now().time_since_epoch().count());
+
+					// Pre calculate result for checking when the client responds
+					m_nHandshakeCheck = scramble(m_nHandshakeOut);
+				}
+				else
+				{
+					// Nothing to define as Connection is Client -> Server
+					m_nHandshakeIn = 0;
+					m_nHandshakeOut = 0;
+				}
+
 			}
 
 			virtual ~connection()
@@ -38,6 +56,26 @@ namespace olc
 			uint32_t GetID() const // Used system wide
 			{
 				return id;
+			}
+
+		public:
+			void ConnectToClient(uint32_t uid = 0)
+			{
+				if (m_nOwnerType == owner::server)
+				{
+					if (m_socket.is_open())
+					{
+						id = uid;
+
+						// Client attempted to connect to server.
+						// Client should validate itself first:
+						WriteValidation();
+
+						// For a task to sit & wait asynchronously for validation data to be sent
+						// back from client
+						ReadValidation(server);
+					}
+				}
 			}
 
 		public:
@@ -51,9 +89,13 @@ namespace olc
 						[this](std::error_code ec, asio::ip::tcp::endpoint point)
 						{
 							if (!ec)
-								ReadHeader();
+								
 							{
+								//ReadHeader();
 
+								// Send packet to be validated:
+
+								ReadValidation();
 							}
 						});
 				}
@@ -70,18 +112,6 @@ namespace olc
 				return m_socket.is_open();
 			}
 
-		public:
-			void ConnectToClient(uint32_t uid = 0)
-			{
-				if (m_nOwnerType == owner::server)
-				{
-					if (m_socket.is_open())
-					{
-						id = uid;
-						ReadHeader();
-					}
-				}
-			}
 
 		public:
 			void Send(const message<T>& msg)
@@ -216,6 +246,7 @@ namespace olc
 				return out ^ 0xC0DEFACE12345678;
 			}
 
+
 		protected:
 			// Unique socket to a remote for each connection
 			asio::ip::tcp::socket m_socket;
@@ -235,6 +266,11 @@ namespace olc
 			owner m_nOwnerType = owner::server;
 
 			uint32_t id = 0;
+
+			// Handshake validation
+			uint64_t m_nHandshakeOut = 0;
+			uint64_t m_HandshakeIn = 0;
+			uint64_t m_nHandshakeCheck = 0;
 
 
 		};
