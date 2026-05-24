@@ -3,6 +3,9 @@
 #define OLC_PGEX_TRANSFORMEDVIEW
 #include "olcPGEX_TransformedView.h"
 
+#include <unordered_map>
+
+
 class MMOGame : public olc::PixelGameEngine, olc::net::client_interface<GameMsg>
 {
 public:
@@ -50,6 +53,9 @@ private:
 
 	olc::vi2d vWorldSize = { 32, 32 };
 
+private:
+	std::unordered_map<uint32_t, sPlayerDescription> mapObjects;
+
 
 public:
 	bool OnUserCreate() override
@@ -60,6 +66,48 @@ public:
 
 	bool OnUserUpdate(float fElapsedTime) override
 	{
+		// Update object locally:
+		for (auto& object : mapObjects)
+		{
+			// Circle, rectangle collisions:
+			olc::vf2d vPotentialPosition = object.second.vPos + object.second.vVel * fElapsedTime;
+
+			// Extract region of world cells that have collisions
+			olc::vi2d vCurrentCell = object.second.vPos.floor();
+			olc::vi2d vTargetCell = vPotentialPosition;
+			olc::vi2d vAreaTL = (vCurrentCell.min(vTargetCell) - olc::vi2d(1, 1)).max({ 0, 0 });
+			olc::vi2d vAreaBR = (vCurrentCell.max(vTargetCell) + olc::vi2d(1, 1)).min(vWorldSize);
+
+			// Iterate through each cell:
+			olc::vi2d vCell;
+			for (vCell.y = vAreaTL.y; vCell.y <= vAreaBR.y; vCell.y++)
+			{
+				for (vCell.x = vAreaTL.x; vCell.x <= vAreaBR.x; vCell.x++)
+				{
+					// Check if cell is solid
+					if (sWorldMap[vCell.y * vWorldSize.x + vCell.x] == '#')
+					{
+						// Calculate nearest point to future player position
+						olc::vf2d vNearestPoint;
+						vNearestPoint.x = std::max(float(vCell.x), std::min(vPotentialPosition.x, float(vCell.x + 1)));
+						vNearestPoint.y = std::max(float(vCell.y), std::min(vPotentialPosition.y, float(vCell.y + 1)));
+
+						// Modifications to ensure it works:
+						olc::vf2d vRayToNearest = vNearestPoint - vPotentialPosition;
+						float fOverlap = object.second.fRadius - vRayToNearest.mag();
+						if (std::isnan(fOverlap)) fOverlap = 0;
+
+						if (fOverlap > 0)
+						{
+							// Resolve collision statistically
+							vPotentialPosition = vPotentialPosition - vRayToNearest.norm() * fOverlap;
+						}
+					}
+				}
+			}
+		}
+
+
 		// Pan & Zoom:
 		if (GetMouse(2).bPressed) tv.StartPan(GetMousePos());
 		if (GetMouse(2).bHeld) tv.UpdatePan(GetMousePos());
@@ -83,6 +131,9 @@ public:
 					tv.DrawRect(olc::vf2d(vTile) + olc::vf2d(0.1f, 0.1f), { 0.8f, 0.8f });
 				}
 			}
+
+		// Draw World Objects:
+
 
 		return true;
 	}

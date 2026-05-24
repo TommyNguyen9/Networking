@@ -3,6 +3,6 @@
     <Platform Name="x64" />
     <Platform Name="x86" />
   </Configurations>
-  <Project Path="MMO_Client/MMO_Client.vcxproj" Id="be420514-97e4-4881-a6e3-23180a443803" />
+  <Project Path="MMO_Example/MMO_Example.vcxproj" Id="be420514-97e4-4881-a6e3-23180a443803" />
   <Project Path="MMO_Server/MMO_Server.vcxproj" Id="4595c81a-135c-4c53-9554-43f4a178af62" />
 </Solution>
