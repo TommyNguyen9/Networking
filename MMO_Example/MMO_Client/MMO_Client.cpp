@@ -92,6 +92,7 @@ public:
 						vNearestPoint.x = std::max(float(vCell.x), std::min(vPotentialPosition.x, float(vCell.x + 1)));
 						vNearestPoint.y = std::max(float(vCell.y), std::min(vPotentialPosition.y, float(vCell.y + 1)));
 
+
 						// Modifications to ensure it works:
 						olc::vf2d vRayToNearest = vNearestPoint - vPotentialPosition;
 						float fOverlap = object.second.fRadius - vRayToNearest.mag();
@@ -133,7 +134,19 @@ public:
 			}
 
 		// Draw World Objects:
+		for (auto& object : mapObjects)
+		{
+			// Drawing the boundary
+			tv.DrawCircle(object.second.vPos, object.second.fRadius);
 
+			// Draw velocity
+			if (object.second.vVel.mag2() > 0)
+				tv.DrawLine(object.second.vPos, object.second.vPos + object.second.vVel.norm() * object.second.fRadius, olc::MAGENTA);
+
+			// Drawing name:
+			olc::vi2d vNameSize = GetTextSizeProp("ID: " + std::to_string(object.first));
+			tv.DrawStringPropDecal(object.second.vPos - olc::vf2d{ vNameSize.x * 0.5f * 0.25f * 0.125f, -object.second.fRadius * 1.25f }, "ID: " + std::to_string(object.first), olc::BLUE, { 0.25f, 0.25f });
+		}
 
 		return true;
 	}
