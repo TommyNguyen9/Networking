@@ -56,6 +56,7 @@ private:
 private:
 	std::unordered_map<uint32_t, sPlayerDescription> mapObjects;
 	uint32_t nPlayerID = 0;
+	sPlayerDescription descPlayer;
 
 	bool bWaitingForConnection = true;
 
@@ -86,6 +87,17 @@ public:
 				
 				switch (msg.header.id)
 				{
+				case(GameMsg::Client_Accepted):
+				{
+					std::cout << "Server accepted client - you are in!\n";
+					olc::net::message<GameMsg> msg;
+					msg.header.id = GameMsg::Client_RegisterWithServer;
+					descPlayer.vPos = { 3.0f, 3.0f };
+					msg << descPlayer;
+					Send(msg);
+					break;
+
+				}
 
 				}
 
