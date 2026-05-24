@@ -57,20 +57,49 @@ private:
 	std::unordered_map<uint32_t, sPlayerDescription> mapObjects;
 	uint32_t nPlayerID = 0;
 
+	bool bWaitingForConnection = true;
 
 public:
 	bool OnUserCreate() override
 	{
 		tv = olc::TileTransformedView({ ScreenWidth(), ScreenHeight() }, { 8, 8 });
 
-		mapObjects[0].nUniqueID = 0;
-		mapObjects[0].vPos = { 3.0f, 3.0f };
+		//mapObjects[0].nUniqueID = 0;
+		//mapObjects[0].vPos = { 3.0f, 3.0f };
 
-		return true;
+		if (Connect("127.0.0.1", 60000))
+		{
+			return true;
+		}
+
+		return false;
 	}
 
 	bool OnUserUpdate(float fElapsedTime) override
 	{
+		// Check for incoming network messages
+		if (IsConnected())
+		{
+			while (!Incoming().empty())
+			{
+				auto msg = Incoming().pop_front().msg;
+				
+				switch (msg.header.id)
+				{
+
+				}
+
+			}
+		}
+
+		if (bWaitingForConnection)
+		{
+			Clear(olc::DARK_BLUE);
+			DrawString({ 10, 10 }, "Waiting To Connect...", olc::WHITE);
+			return true;
+		}
+
+
 
 		// Controlling player object:
 		mapObjects[nPlayerID].vVel = { 0.0f, 0.0f };
