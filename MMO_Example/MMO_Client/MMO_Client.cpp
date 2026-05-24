@@ -62,6 +62,10 @@ public:
 	bool OnUserCreate() override
 	{
 		tv = olc::TileTransformedView({ ScreenWidth(), ScreenHeight() }, { 8, 8 });
+
+		mapObjects[0].nUniqueID = 0;
+		mapObjects[0].vPos = { 3.0f, 3.0f };
+
 		return true;
 	}
 
@@ -118,6 +122,9 @@ public:
 					}
 				}
 			}
+
+			// Set objects new position to allowed potential position:
+			object.second.vPos = vPotentialPosition;
 		}
 
 
