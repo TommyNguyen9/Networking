@@ -55,6 +55,7 @@ private:
 
 private:
 	std::unordered_map<uint32_t, sPlayerDescription> mapObjects;
+	uint32_t nPlayerID = 0;
 
 
 public:
@@ -66,6 +67,17 @@ public:
 
 	bool OnUserUpdate(float fElapsedTime) override
 	{
+
+		// Controlling player object:
+		mapObjects[nPlayerID].vVel = { 0.0f, 0.0f };
+		if (GetKey(olc::Key::W).bHeld) mapObjects[nPlayerID].vVel += olc::vf2d{ 0.0f, -1.0f };
+		if (GetKey(olc::Key::S).bHeld) mapObjects[nPlayerID].vVel += olc::vf2d{ 0.0f, +1.0f };
+		if (GetKey(olc::Key::A).bHeld) mapObjects[nPlayerID].vVel += olc::vf2d{ -1.0f, 0.0f };
+		if (GetKey(olc::Key::D).bHeld) mapObjects[nPlayerID].vVel += olc::vf2d{ +1.0f, 0.0f };
+
+		if (mapObjects[nPlayerID].vVel.mag2() > 0)
+			mapObjects[nPlayerID].vVel = mapObjects[nPlayerID].vVel.norm() * 4.0f;
+		
 		// Update object locally:
 		for (auto& object : mapObjects)
 		{
