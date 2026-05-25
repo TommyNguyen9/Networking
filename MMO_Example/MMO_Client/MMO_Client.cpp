@@ -248,6 +248,12 @@ public:
 			tv.DrawStringPropDecal(object.second.vPos - olc::vf2d{ vNameSize.x * 0.5f * 0.25f * 0.125f, -object.second.fRadius * 1.25f }, "ID: " + std::to_string(object.first), olc::BLUE, { 0.25f, 0.25f });
 		}
 
+		// Send player description:
+		olc::net::message<GameMsg> msg;
+		msg.header.id = GameMsg::Game_UpdatePlayer;
+		msg << mapObjects[nPlayerID];
+		Send(msg);
+
 		return true;
 	}
 };
