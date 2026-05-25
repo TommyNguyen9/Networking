@@ -17,4 +17,9 @@ protected:
 		// Allow all
 		return true;
 	}
+
+	void OnClientValidated(std::shared_ptr<olc::net::connection<GameMsg>> client) override
+	{
+
+	}
 };
