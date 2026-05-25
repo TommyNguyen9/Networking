@@ -11,6 +11,8 @@ public:
 
 	}
 
+	std::unordered_map<uint32_t, sPlayerDescription> m_mapPlayerRoster;
+
 protected:
 	bool OnClientConnect(std::shared_ptr<olc::net::connection<GameMsg>> client) override
 	{
@@ -20,6 +22,76 @@ protected:
 
 	void OnClientValidated(std::shared_ptr<olc::net::connection<GameMsg>> client) override
 	{
+		// Client passed validation check - send message informing that they can continue 
+		// to communicate.
+		olc::net::message<GameMsg> msg;
+		msg.header.id = GameMsg::Client_Accepted;
+		client->Send(msg);
 
 	}
+
+	void OnClientDisconnect(std::shared_ptr<olc::net::connection<GameMsg>> client) override
+	{
+
+	}
+
+	void OnMessage(std::shared_ptr<olc::net::connection<GameMsg>> client, olc::net::message<GameMsg>& msg) override
+	{
+		switch (msg.header.id)
+		{
+		case GameMsg::Client_RegisterWithServer:
+		{
+			sPlayerDescription desc;
+			msg >> desc;
+			desc.nUniqueID = client->GetID();
+			m_mapPlayerRoster.insert_or_assign(desc.nUniqueID, desc);
+
+			olc::net::message<GameMsg> msgSendID;
+			msgSendID.header.id = GameMsg::Client_AssignID;
+			msgSendID << desc.nUniqueID;
+			MessageClient(client, msgSendID);
+
+			olc::net::message<GameMsg> msgAddPlayer;
+			msgAddPlayer.header.id = GameMsg::Game_AddPlayer;
+			msgAddPlayer << desc;
+			MessageAllClients(msgAddPlayer);
+
+			for (const auto& player : m_mapPlayerRoster)
+			{
+				olc::net::message<GameMsg> msgAddOtherPlayers;
+				msgAddOtherPlayers.header.id = GameMsg::Game_AddPlayer;
+				msgAddOtherPlayers << player.second;
+				MessageClient(client, msgAddOtherPlayers);
+			}
+
+			break;
+		}
+
+		case GameMsg::Client_UnregisterWithServer:
+		{
+			break;
+		}
+
+		case GameMsg::Game_UpdatePlayer:
+		{
+			// Bounce update to everyone except incoming client
+			MessageAllClients(msg, client);
+			break;
+		}
+
+		}
+	}
+
 };
+
+int main()
+{
+	GameServer server(60000);
+	server.Start();
+
+	while (1)
+	{
+		server.Update(-1, true);
+	}
+	return 0;
+}
