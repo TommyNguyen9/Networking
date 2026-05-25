@@ -99,6 +99,46 @@ public:
 
 				}
 
+				case (GameMsg::Client_AssignID):
+				{
+					// Server now assigning our ID
+					msg >> nPlayerID;
+					std::cout << "Assigned Client ID = " << nPlayerID << "\n";
+					break;
+				}
+
+				case(GameMsg::Game_AddPlayer):
+				{
+					sPlayerDescription desc;
+					msg >> desc;
+					mapObjects.insert_or_assign(desc.nUniqueID, desc);
+
+					if (desc.nUniqueID == nPlayerID)
+					{
+						// Now we exist in game world
+						bWaitingForConnection = false;
+					}
+
+					break;
+				}
+
+				case(GameMsg::Game_RemovePlayer):
+				{
+					uint32_t nRemovalID = 0;
+					msg >> nRemovalID;
+					mapObjects.erase(nRemovalID);
+					break;
+				}
+
+				case(GameMsg::Game_UpdatePlayer): // Status of any player
+				{
+					sPlayerDescription desc;
+					msg >> desc;
+					mapObjects.insert_or_assign(desc.nUniqueID, desc);
+					break;
+				}
+
+
 				}
 
 			}
