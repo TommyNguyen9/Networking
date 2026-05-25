@@ -12,6 +12,7 @@ public:
 	}
 
 	std::unordered_map<uint32_t, sPlayerDescription> m_mapPlayerRoster;
+	std::vector<uint32_t> m_vGarbageIDs;
 
 protected:
 	bool OnClientConnect(std::shared_ptr<olc::net::connection<GameMsg>> client) override
@@ -32,11 +33,43 @@ protected:
 
 	void OnClientDisconnect(std::shared_ptr<olc::net::connection<GameMsg>> client) override
 	{
+		if (client)
+		{
+			if (m_mapPlayerRoster.find(client->GetID()) == m_mapPlayerRoster.end())
+			{
+				// Client never added to roster
+			}
+			else
+			{
+				auto& pd = m_mapPlayerRoster[client->GetID()];
+				std::cout << "[UNGRACEFUL REMOVAL]:" + std::to_string(pd.nUniqueID) + "\n";
+				m_mapPlayerRoster.erase(client->GetID());
+				m_vGarbageIDs.push_back(client->GetID());
+			}
+		}
 
 	}
 
 	void OnMessage(std::shared_ptr<olc::net::connection<GameMsg>> client, olc::net::message<GameMsg>& msg) override
 	{
+		if (!m_vGarbageIDs.empty())
+		{
+			for (auto pid : m_vGarbageIDs)
+			{
+				olc::net::message<GameMsg> m;
+				m.header.id = GameMsg::Game_RemovePlayer;
+				m << pid;
+				std::cout << "Removing " << pid << "\n";
+				MessageAllClients(m);
+			}
+			m_vGarbageIDs.clear();
+		}
+
+
+
+
+
+
 		switch (msg.header.id)
 		{
 		case GameMsg::Client_RegisterWithServer:

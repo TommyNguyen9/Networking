@@ -261,7 +261,7 @@ public:
 int main()
 {
 	MMOGame demo;
-	if (demo.Construct(640, 480, 2, 2))
+	if (demo.Construct(480, 480, 0.7, 0.7))
 		demo.Start();
 	return 0;
 }
